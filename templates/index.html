@@ -74,6 +74,10 @@
         </div>
         {% endif %}
     </div>
+    <!-- Toast -->
+    <div id="toast"
+        class="hidden fixed bottom-4 right-4 bg-green-500 text-white text-sm font-medium py-2 px-4 rounded shadow-lg transition-transform transform translate-y-4 opacity-0">
+    </div>
 
     <script>
         // Toggle the visibility of the PAT input field based on repository type
@@ -91,6 +95,35 @@
         // Initial check to hide or show PAT field based on selected option
         if (document.getElementById('local_option').checked) {
             document.getElementById('pat_field').style.display = 'none'; // Initially hide PAT field if "Local Directory" is selected
+        }
+        document.getElementById('copyBtn').addEventListener('click', function () {
+            // Select the content you want to copy
+            const contentToCopy = document.getElementById('folderStructure').textContent;
+
+            // Use the Clipboard API to copy the content
+            navigator.clipboard.writeText(contentToCopy).then(() => {
+                showToast('Content copied to clipboard!');
+            }).catch(err => {
+                showToast('Failed to copy content.', true);
+                console.error('Failed to copy: ', err);
+            });
+        });
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+
+            // Update classes for visibility and color
+            toast.className = `fixed bottom-4 right-4 py-2 px-4 text-sm font-medium rounded shadow-lg transition-transform transform ${
+                isError ? 'bg-red-500' : 'bg-green-500'
+            } translate-y-0 opacity-100`;
+
+            // Automatically hide the toast after 3 seconds
+            setTimeout(() => {
+                toast.className = `fixed bottom-4 right-4 py-2 px-4 text-sm font-medium rounded shadow-lg transition-transform transform ${
+                    isError ? 'bg-red-500' : 'bg-green-500'
+                } translate-y-4 opacity-0 hidden`;
+            }, 3000);
         }
     </script>
 

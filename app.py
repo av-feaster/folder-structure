@@ -59,11 +59,14 @@ def traverse_github_structure(items, headers, indent=""):
 
 # Function to extract 'owner/repo' from a full GitHub URL
 def extract_owner_repo_from_url(url):
-    # Regex to extract the owner/repo part from a full GitHub URL
     match = re.match(r'https://github.com/([^/]+/[^/]+)', url)
     if match:
         return match.group(1)
     return None
+
+def check_directory_exists(directory_path):
+    """Check if the directory exists on the user's system."""
+    return os.path.exists(directory_path)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -75,26 +78,24 @@ def index():
         repo_input = request.form["repo_input"]
         token = request.form.get("token_input")
         repo_type = request.form.get("repo_type")  # Determine if it's URL or local
-
-        if repo_type == "local": 
-            if os.path.exists(repo_input): 
-                folder_structure = "\n" + generate_folder_structure_from_local(repo_input)
-                print("<<<>>> folder:"+ folder_structure)
+        if repo_type == 'local':
+            # Check if the local directory exists on the user’s system
+            if not check_directory_exists(repo_input):
+                error_message = f"The directory '{repo_input}' does not exist. Please check the path."
             else:
-                 error_message = f"Error: The directory '{repo_input}' does not exist. Please check the path."
+                # Proceed with generating the folder structure for the local directory
+                folder_structure = "\n" + generate_folder_structure_from_local(repo_input)
         elif repo_type == "url":
             if not token:
                 error_message = "Please provide a GitHub Personal Access Token (PAT)."
             else:
                 session['token'] = token  # Store token in session for subsequent requests
-                # Process the input based on whether it's a URL or a local path
-                # # Extract 'owner/repo' from full URL if needed
+                # Extract 'owner/repo' from full URL if needed
                 repo_input = extract_owner_repo_from_url(repo_input) or repo_input
                 if not repo_input or "/" not in repo_input:
                     error_message = "Invalid GitHub repository URL or format. Please use 'owner/repository' or a valid GitHub URL."
                 else:
                     folder_structure = "\n" + generate_folder_structure_from_github(repo_input, token)
-                    print("<<<>>> folder:"+ folder_structure)
                     if folder_structure.startswith("Error"):
                         error_message = folder_structure
     return render_template("index.html", folder_structure=folder_structure, error_message=error_message)
@@ -110,4 +111,3 @@ def set_token():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-    # app.run(debug=True)

@@ -1,0 +1,51 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+env/
+.venv/
+venv/
+
+# Flask specific
+instance/
+*.db
+*.sqlite
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# IntelliJ IDEA
+.idea/
+
+# Operating system files
+Thumbs.db
+ehthumbs.db
+
+# Logs
+logs/
+*.log
+
+# Python egg and distribution files
+*.egg-info/
+dist/
+build/
+
+# Coverage reports
+.coverage
+*.coveragerc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python virtual environment
+venv/
+

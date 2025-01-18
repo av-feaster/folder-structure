@@ -1,132 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Folder Structure Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="bg-gray-100 font-sans">
-
+  </head>
+  <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center text-indigo-600 mb-8">Folder Structure Generator</h1>
+      <h1 class="text-4xl font-bold text-center text-indigo-600 mb-8">
+        Folder Structure Generator
+      </h1>
 
-        <!-- Form -->
-        <form method="POST" action="/" class="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto space-y-6">
-            <div>
-                <label for="repo_input" class="block text-gray-700 font-semibold">Enter GitHub Repository URL or Local Path:</label>
-                <input type="text" name="repo_input" required
-                    class="mt-2 p-3 w-full border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <!-- Form -->
+      <form
+        id="folderForm"
+        method="POST"
+        action="/"
+        class="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto space-y-6"
+      >
+        <div id="repo_input_container" style="display: none">
+          <label for="repo_input" class="block text-gray-700 font-semibold"
+            >Enter GitHub Repository URL:</label
+          >
+          <input
+            type="text"
+            name="repo_input"
+            id="repo_input"
+            class="mt-2 p-3 w-full border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label for="repo_type" class="block text-gray-700 font-semibold"
+            >Choose Repository Type:</label
+          >
+          <div class="flex mt-2">
+            <div class="mr-4">
+              <input
+                type="radio"
+                name="repo_type"
+                value="url"
+                id="url_option"
+                class="mr-2"
+                checked
+              />
+              <label for="url_option" class="text-gray-700">URL</label>
             </div>
-
             <div>
-                <label for="repo_type" class="block text-gray-700 font-semibold">Choose Repository Type:</label>
-                <div class="flex mt-2">
-                    <div class="mr-4">
-                        <input type="radio" name="repo_type" value="url" id="url_option" class="mr-2" checked>
-                        <label for="url_option" class="text-gray-700">URL</label>
-                    </div>
-                    <div>
-                        <input type="radio" name="repo_type" value="local" id="local_option" class="mr-2">
-                        <label for="local_option" class="text-gray-700">Local Directory</label>
-                    </div>
-                </div>
+              <input
+                type="radio"
+                name="repo_type"
+                value="local"
+                id="local_option"
+                class="mr-2"
+              />
+              <label for="local_option" class="text-gray-700"
+                >Local Directory</label
+              >
             </div>
-
+          </div>
+          <div
+            id="generate_container"
+            class="flex flex-col space-y-2.5"
+            style="display: none"
+          >
             <!-- GitHub PAT input field -->
             <div id="pat_field">
-                <label for="token_input" class="block text-gray-700 font-semibold">Enter GitHub Personal Access Token:</label>
-                <input type="password" name="token_input"
-                    class="mt-2 p-3 w-full border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label for="token_input" class="block text-gray-700 font-semibold"
+                >Enter GitHub Personal Access Token:</label
+              >
+              <input
+                type="password"
+                name="token_input"
+                class="mt-2 p-3 w-full border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
 
-            <button type="submit"
-                class="w-full py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition ease-in-out duration-300">
-                Generate Folder Structure
+            <button
+              id="generate_button"
+              type="submit"
+              class="p-3 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition ease-in-out duration-300"
+            >
+              Generate Folder Structure
             </button>
-        </form>
-
-        <!-- Error Message -->
-        {% if error_message %}
-        <div class="mt-6 text-center text-red-500 font-semibold">
-            {{ error_message }}
+          </div>
         </div>
-        {% endif %}
 
-        <!-- Folder Structure -->
-        {% if folder_structure %}
-        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
-            <!-- Flex container for the heading and the button -->
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-700">Folder Structure</h2>
-                <!-- Copy Button beside the folder structure title -->
-                <button id="copyBtn"
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition ease-in-out duration-300">
-                    Copy to README
-                </button>
-            </div>
-
-            <pre id="folderStructure" class="bg-gray-100 p-4 rounded-lg font-mono text-sm text-gray-700 whitespace-pre-wrap">
-                {{ folder_structure }}
-            </pre>
+        <!-- Directory Chooser Button -->
+        <div id="directoryChooser" style="display: none">
+          <button
+            type="button"
+            id="pick-folder"
+            ̀
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition ease-in-out duration-300"
+          >
+            Pick a Folder
+          </button>
         </div>
-        {% endif %}
-    </div>
-    <!-- Toast -->
-    <div id="toast"
-        class="hidden fixed bottom-4 right-4 bg-green-500 text-white text-sm font-medium py-2 px-4 rounded shadow-lg transition-transform transform translate-y-4 opacity-0">
-    </div>
 
+        <!-- Folder Structure Output -->
+        <div class="flex items-center justify-between">
+          <label for="folder-structure" class="block text-gray-700 font-semibold">
+            Folder Structure:
+          </label>
+          <button
+            id="copyBtn"
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition ease-in-out duration-300"
+          >
+            Copy
+          </button>
+        </div>
+          <pre
+            id="folder-structure"
+            class="bg-gray-100 p-4 mt-4 rounded-lg font-mono text-sm text-gray-700 whitespace-pre-wrap"
+          ></pre>
+        </div>
+      </form>
+      <!-- Error Message -->
+      <div
+        id="error-message"
+        class="mt-6 text-center text-red-500 font-semibold"
+      ></div>
+    </div>
     <script>
-        // Toggle the visibility of the PAT input field based on repository type
-        document.querySelectorAll('input[name="repo_type"]').forEach(function (elem) {
-            elem.addEventListener('change', function () {
-                const patField = document.getElementById('pat_field');
-                if (document.getElementById('local_option').checked) {
-                    patField.style.display = 'none'; // Hide PAT field for local repository
-                } else {
-                    patField.style.display = 'block'; // Show PAT field for GitHub URL
-                }
-            });
-        });
-
-        // Initial check to hide or show PAT field based on selected option
-        if (document.getElementById('local_option').checked) {
-            document.getElementById('pat_field').style.display = 'none'; // Initially hide PAT field if "Local Directory" is selected
-        }
-        document.getElementById('copyBtn').addEventListener('click', function () {
-            // Select the content you want to copy
-            const contentToCopy = document.getElementById('folderStructure').textContent;
-
-            // Use the Clipboard API to copy the content
-            navigator.clipboard.writeText(contentToCopy).then(() => {
-                showToast('Content copied to clipboard!');
-            }).catch(err => {
-                showToast('Failed to copy content.', true);
-                console.error('Failed to copy: ', err);
-            });
-        });
-
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-
-            // Update classes for visibility and color
-            toast.className = `fixed bottom-4 right-4 py-2 px-4 text-sm font-medium rounded shadow-lg transition-transform transform ${
-                isError ? 'bg-red-500' : 'bg-green-500'
-            } translate-y-0 opacity-100`;
-
-            // Automatically hide the toast after 3 seconds
-            setTimeout(() => {
-                toast.className = `fixed bottom-4 right-4 py-2 px-4 text-sm font-medium rounded shadow-lg transition-transform transform ${
-                    isError ? 'bg-red-500' : 'bg-green-500'
-                } translate-y-4 opacity-0 hidden`;
-            }, 3000);
-        }
+      const folderStructure = `{{ folder_structure | safe }}`;
+      const errorMessage = "{{ error_message | safe }}";
     </script>
 
-</body>
-
+    <script src="/static/script.js"></script>
+  </body>
 </html>

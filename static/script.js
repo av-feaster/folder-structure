@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyBtn = document.getElementById("copyBtn");
 
     const ignoredFiles = new Set();
-    print("<<<>>> localOption", localOption)
+
 
     const isLocal = localOption.checked
     directoryChooser.style.display = isLocal ? 'block' : 'none';
